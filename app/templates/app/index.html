@@ -3,10 +3,14 @@
 {% block content %}
 
 <div class="jumbotron">
-    <h1>Hello World</h1>
-    
+    <h1>Welcome To My Travel Blog!</h1>
 </div>
 
-
+{% for entry in blog_entries %}
+    <h2>{{ entry.title }}</h2>
+    <h4>From {{ entry.city }} - {{ entry.country }}</h3>
+    <p>{{ entry.body }}</p>
+    <p>Posted on {{ entry.created|date:"d/m/Y H:i" }} CEST</p>
+{% endfor %}
 
 {% endblock %}

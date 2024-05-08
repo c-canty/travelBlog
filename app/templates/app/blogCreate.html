@@ -1,0 +1,24 @@
+{% extends "app/layout.html" %}
+
+{% block content %}
+<h1>{{ title }}</h1>
+<p>Create a new blog entry for {{ year }}</p>
+
+<!-- Form for creating a new blog entry -->
+<form method="post">
+    <!-- CSRF token for security -->
+    {% csrf_token %}
+
+    <!-- Render form fields with error handling -->
+    {{ form.as_p }}
+
+    <!-- Submit button -->
+    <button type="submit">Create Blog Entry</button>
+</form>
+
+<!-- Display success message if the form was valid -->
+{% if form.is_valid %}
+<p>Your blog entry has been successfully created!</p>
+{% endif %}
+
+{% endblock %}
