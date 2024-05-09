@@ -20,6 +20,8 @@ class BootstrapAuthenticationForm(AuthenticationForm):
                                    'class': 'form-control',
                                    'placeholder':'Password'}))
 
+
+COUNTRY_CHOICES = [(country.alpha_2, country.name) for country in countries] # From pycountry
 class BlogEntryCreateForm(forms.ModelForm):
     class Meta:
         model = BlogEntry
@@ -47,9 +49,6 @@ class BlogEntryCreateForm(forms.ModelForm):
                 'class': 'form-control',
             }),
         }
-
-
-
 
 class BlogEntryUpdateForm(forms.ModelForm):
     class Meta:
@@ -79,17 +78,6 @@ class BlogEntryUpdateForm(forms.ModelForm):
             }),
         }
 
-
-
-class BlogEntryDeactivateForm(forms.ModelForm):
-    class Meta:
-        model = BlogEntry
-        fields = ['active']  # Only include the 'active' field
-        widgets = {
-            'active': forms.CheckboxInput({
-                'class': 'form-control',
-            }),
-        }
-
-    
+class ToggleBlogForm(forms.Form):
+    blog_id = forms.IntegerField(widget=forms.HiddenInput())
 

@@ -1,16 +1,46 @@
 {% extends "app/layout.html" %}
 
 {% block content %}
-
 <div class="jumbotron">
     <h1>Welcome To My Travel Blog!</h1>
 </div>
 
 {% for entry in blog_entries %}
-    <h2>{{ entry.title }}</h2>
-    <h4>From {{ entry.city }} - {{ entry.country }}</h3>
-    <p>{{ entry.body }}</p>
-    <p>Posted on {{ entry.created|date:"d/m/Y H:i" }} CEST</p>
-{% endfor %}
+<div class="blog-entry">
+    {% if entry.active or user.is_authenticated %}
+        {% if user.is_authenticated and not entry.active %}
+            <!-- Inactive Entries for Authenticated Users -->
+            <h2 style="color:red">{{ entry.title }}</h2>
+            <h4 style="color:red">{{ entry.city }} - {{ entry.country }}</h4>
+            <p style="color:red">{{ entry.body }}</p>
+            <p style="color:red">Posted on {{ entry.created|date:"d/m/Y H:i" }} CEST</p>
+        {% else %}
+            <!-- Active Entries for Everyone -->
+            <h2>{{ entry.title }}</h2>
+            <h4>{{ entry.city }} - {{ entry.country }}</h4>
+            <p>{{ entry.body }}</p>
+            <p>Posted on {{ entry.created|date:"d/m/Y H:i" }} CEST</p>
+        {% endif %}
 
+        {% if user.is_authenticated %}
+            <!-- Update Button -->
+            <a href="{% url 'blogUpdate' blog_id=entry.id %}" class="btn btn-primary">Update</a>
+
+            <!-- Toggle Active/Inactive -->
+            <form action="{% url 'blogActiveToggle' %}" method="post" style="display: inline;">
+                {% csrf_token %}
+                <input type="hidden" name="blog_id" value="{{ entry.id }}">
+                <button type="submit" class="btn btn-secondary">
+                    {% if entry.active %}
+                        Deactivate
+                    {% else %}
+                        Activate
+                    {% endif %}
+                </button>
+            </form>            
+            
+        {% endif %}
+    {% endif %}
+</div>
+{% endfor %}
 {% endblock %}

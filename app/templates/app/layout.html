@@ -22,9 +22,12 @@
                 <a href="/" class="navbar-brand">CC's Travels</a>
             </div>
             <div class="navbar-collapse collapse">
+                {% if user.is_authenticated %}
                 <ul class="nav navbar-nav">
-
+                    <li> <a href={% url "blogCreate" %}>New Entry</a></li>
                 </ul>
+                {% include 'app/loginpartial.html' %}
+                {% endif %}
             </div>
         </div>
     </div>

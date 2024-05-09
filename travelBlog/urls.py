@@ -27,5 +27,5 @@ urlpatterns = [
     path('admin/', admin.site.urls),
     path('blogCreate/', views.blogCreate, name='blogCreate'),
     path('blogUpdate/<int:blog_id>/', views.blogUpdate, name='blogUpdate'),
-    path('blogDeactivate/<int:blog_id>/', views.blogDeactivate, name='blogDeactivate'),
+    path('blogActiveToggle/', views.blogActiveToggle, name='blogActiveToggle'),
 ]

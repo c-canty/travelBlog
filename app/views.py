@@ -3,10 +3,10 @@ Definition of views.
 """
 
 from datetime import datetime
-from django.shortcuts import render, redirect
-from django.http import HttpRequest
+from django.shortcuts import render, redirect, get_object_or_404
+from django.http import HttpRequest, HttpResponseRedirect, HttpResponse
 from app.models import BlogEntry
-from app.forms import BlogEntryCreateForm, BlogEntryDeactivateForm, BlogEntryUpdateForm
+from app.forms import BlogEntryCreateForm, BlogEntryUpdateForm, ToggleBlogForm
 from django.contrib.auth.decorators import login_required
 
 
@@ -19,7 +19,7 @@ def home(request):
         {
             'title':'Home Page',
             'year':datetime.now().year,
-            'blog_entries': BlogEntry.objects.filter(active=True).order_by('created')[:5],
+            'blog_entries': BlogEntry.objects.all().order_by('created'),
         }
     )
 
@@ -33,7 +33,7 @@ def blogCreate(request):
         return redirect('home')
     return render(
         request,
-        'app/blogCreate.html',
+        'app/generic_form.html',
         {
             'title':'Create Blog Entry',
             'year':datetime.now().year,
@@ -49,9 +49,10 @@ def blogUpdate(request, blog_id):
     form = BlogEntryUpdateForm(request.POST or None, instance=blog)
     if form.is_valid():
         form.save()
+        return redirect('home')
     return render(
         request,
-        'app/blogUpdate.html',
+        'app/generic_form.html',
         {
             'title':'Update Blog Entry',
             'year':datetime.now().year,
@@ -60,21 +61,18 @@ def blogUpdate(request, blog_id):
     )
 
 @login_required
-def blogDeactivate(request, blog_id):
-    """Renders the blog deactivate page."""
-    assert isinstance(request, HttpRequest)
-    blog = BlogEntry.objects.get(id=blog_id)
-    form = BlogEntryDeactvateForm(request.POST or None, instance=blog)
-    if form.is_valid():
-        form.save()
-    return render(
-        request,
-        'app/blogDeactivate.html',
-        {
-            'title':'Deactivate Blog Entry',
-            'year':datetime.now().year,
-            'form': form,
-        }
-    )
-    
-    
+def blogActiveToggle(request):
+    if request.method == 'POST':
+        form = ToggleBlogForm(request.POST)
+        if form.is_valid():
+            blog_id = form.cleaned_data['blog_id']
+            blog = get_object_or_404(BlogEntry, id=blog_id)
+            blog.active = not blog.active
+            blog.save()
+            return HttpResponseRedirect(reverse('home'))
+        else:
+            # What causes the form to be invalid?
+            return HttpResponse("Invalid form data", status=400)
+    else:
+        return HttpResponse("Only POST method is allowed", status=405)
+

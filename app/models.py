@@ -3,7 +3,6 @@ Definition of models.
 """
 
 from django.db import models
-
 # blog entry model
 class BlogEntry(models.Model):
     title = models.CharField(max_length=100)
