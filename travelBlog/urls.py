@@ -10,7 +10,6 @@ from app import forms, views
 from django.contrib import admin
 
 urlpatterns = [
-    path('', views.home, name='home'),
     path('login/',
          LoginView.as_view
          (
@@ -25,7 +24,9 @@ urlpatterns = [
          name='login'),
     path('logout/', LogoutView.as_view(next_page='/'), name='logout'),
     path('admin/', admin.site.urls),
-    path('blogCreate/', views.blogCreate, name='blogCreate'),
-    path('blogUpdate/<int:blog_id>/', views.blogUpdate, name='blogUpdate'),
-    path('blogActiveToggle/', views.blogActiveToggle, name='blogActiveToggle'),
+    path('', views.HomeListView.as_view(), name='home'),
+    path('blogCreate/', views.BlogCreateView.as_view(), name='blogCreate'),
+    path('blogUpdate/<int:pk>/', views.BlogUpdateView.as_view(), name='blogUpdate'),
+    path('blogActiveToggle/<int:pk>/', views.BlogActiveToggleView.as_view(), name='blogActiveToggle'),
+    path('tripCreate/', views.TripCreateView.as_view(), name='tripCreate'),
 ]

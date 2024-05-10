@@ -3,19 +3,13 @@
 {% block content %}
 <h1>{{ title }}</h1>
 
-<!-- Form for creating a new blog entry -->
 <form method="post">
-    <!-- CSRF token for security -->
     {% csrf_token %}
-
-    <!-- Render form fields with error handling -->
+    
     {{ form.as_p }}
-
-    <!-- Submit button -->
+    
     <button type="submit">Submit</button>
 </form>
 
+
 {% endblock %}
-
-
-

@@ -55,10 +55,10 @@
 
         {% if user.is_authenticated %}
             <!-- Update Button -->
-            <a href="{% url 'blogUpdate' blog_id=entry.id %}" class="btn btn-primary">Update</a>
+            <a href="{% url 'blogUpdate' pk=entry.id %}" class="btn btn-primary">Update</a>
 
             <!-- Toggle Active/Inactive -->
-            <form action="{% url 'blogActiveToggle' %}" method="post" style="display: inline;">
+            <form action="{% url 'blogActiveToggle' pk=entry.id %}" method="post" style="display: inline;">
                 {% csrf_token %}
                 <input type="hidden" name="blog_id" value="{{ entry.id }}">
                 <button type="submit" class="btn btn-secondary">
