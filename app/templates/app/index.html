@@ -1,9 +1,39 @@
 {% extends "app/layout.html" %}
 
 {% block content %}
+
 <div class="jumbotron">
     <h1>Welcome To My Travel Blog!</h1>
 </div>
+<div class="filter-form">
+    <h3>Filter Blog Entries</h3>
+    <form method="get">
+        <!-- Country filter -->
+        <label for="country">Country:</label>
+        <select name="country" id="country">
+            <option value="">Any</option>
+            {% for country in countries %}
+                <option value="{{ country.name }}"
+                    {% if request.GET.country.name == country.name %}
+                        selected
+                    {% endif %}
+                >
+                    {{ country.name }}
+                </option>
+            {% endfor %}
+        </select>
+
+        <!-- Date range filter -->
+        <label for="start_date">Start Date:</label>
+        <input type="date" name="start_date" value="{{ request.GET.start_date }}">
+
+        <label for="end_date">End Date:</label>
+        <input type="date" name="end_date" value="{{ request.GET.end_date }}">
+
+        <button type="submit" class="btn btn-primary">Filter</button>
+    </form>
+</div>
+
 
 {% for entry in blog_entries %}
 <div class="blog-entry">
@@ -11,13 +41,14 @@
         {% if user.is_authenticated and not entry.active %}
             <!-- Inactive Entries for Authenticated Users -->
             <h2 style="color:red">{{ entry.title }}</h2>
-            <h4 style="color:red">{{ entry.city }} - {{ entry.country }}</h4>
+            
+            <h4 style="color:red">{{ entry.city }} - {{ entry.country }} {% for country in countries %}{%if country.name == entry.country %}{{ country.flag }}{% endif %}{% endfor %} </h4>
             <p style="color:red">{{ entry.body }}</p>
             <p style="color:red">Posted on {{ entry.created|date:"d/m/Y H:i" }} CEST</p>
         {% else %}
             <!-- Active Entries for Everyone -->
             <h2>{{ entry.title }}</h2>
-            <h4>{{ entry.city }} - {{ entry.country }}</h4>
+            <h4>{{ entry.city }} - {{ entry.country }} {% for country in countries %}{%if country.name == entry.country %}{{ country.flag }}{% endif %}{% endfor %} </h4>
             <p>{{ entry.body }}</p>
             <p>Posted on {{ entry.created|date:"d/m/Y H:i" }} CEST</p>
         {% endif %}
@@ -37,8 +68,7 @@
                         Activate
                     {% endif %}
                 </button>
-            </form>            
-            
+            </form>
         {% endif %}
     {% endif %}
 </div>

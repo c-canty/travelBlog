@@ -7,7 +7,7 @@ from django.utils.translation import gettext_lazy as _
 from pycountry import countries
 from .models import BlogEntry
 
-COUNTRY_CHOICES = [(country.alpha_2, country.name) for country in countries]
+COUNTRY_CHOICES = [country.name for country in countries]
 
 class BootstrapAuthenticationForm(AuthenticationForm):
     """Authentication form which uses boostrap CSS."""
@@ -80,4 +80,30 @@ class BlogEntryUpdateForm(forms.ModelForm):
 
 class ToggleBlogForm(forms.Form):
     blog_id = forms.IntegerField(widget=forms.HiddenInput())
+
+# class TripCreateForm(forms.ModelForm):
+#     class Meta:
+#         model = Trip
+#         fields = ['title', 'description', 'start_date', 'end_date', 'active']
+#         widgets = {
+#             'title': forms.TextInput({
+#                 'class': 'form-control',
+#                 'placeholder': 'Title',
+#             }),
+#             'description': forms.Textarea({
+#                 'class': 'form-control',
+#                 'placeholder': 'Description',
+#             }),
+#             'start_date': forms.DateInput({
+#                 'class': 'form-control',
+#                 'placeholder': 'Start Date',
+#             }),
+#             'end_date': forms.DateInput({
+#                 'class': 'form-control',
+#                 'placeholder': 'End Date',
+#             }),
+#             'active': forms.CheckboxInput({
+#                 'class': 'form-control',
+#             }),
+#         }
 
