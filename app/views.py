@@ -14,6 +14,9 @@ from django.views.generic import ListView, DetailView, CreateView, UpdateView, R
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.urls import reverse_lazy
 from django.urls import reverse
+from django.conf import settings
+import os
+import random
 
 
 class TripListView(ListView):
@@ -24,9 +27,32 @@ class TripListView(ListView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
+
+        # Define the folder where your images are stored (relative to the Django base directory)
+        # If your project base directory is `TravelBlogProject`
+        folder_path = os.path.join(settings.BASE_DIR, 'app', 'static', 'app', 'Images')
+
+        # List all file names in the folder
+        try:
+            all_files = os.listdir(folder_path)
+        except Exception as e:
+            all_files = []
+            print(f"Error listing files: {e}")
+
+        # Ensure at least 4-5 files are available before random sampling
+        if len(all_files) >= 5:
+            random_files = random.sample(all_files, 4)  # Sample 5 random unique file names
+        else:
+            random_files = all_files  # Fallback to all available if fewer than 5
+
+        # Add other context variables
         context['title'] = 'CC Travels!'
-        context['news'] = NewsFeedEntry.objects.filter(active=True)[:5]
+        context['news'] = NewsFeedEntry.objects.filter(active=True).order_by('id')[:5]
         context['year'] = datetime.now().year
+        context['random_files'] = random_files  # Adding random file names to the context
+        for image in random_files:
+            print(image)
+
         return context
     
 
@@ -93,7 +119,7 @@ class BlogCreateView(CreateView, LoginRequiredMixin):
     form_class = BlogEntryCreateForm
     template_name = 'app/generic_form.html'
     
-    # Define a success_url that redirects to a relevant page (could be the trip detail page, or a blog list page)
+    
     def get_success_url(self):
         # Redirect back to the detail page of the trip with the given pk
         return reverse('blogList', kwargs={'pk': self.kwargs['pk']})

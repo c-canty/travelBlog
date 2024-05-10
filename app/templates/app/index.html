@@ -1,38 +1,116 @@
 {% extends "app/layout.html" %}
 
 {% block content %}
-<div class="jumbotron">
-    <h1>Welcome To Our Travel Site!</h1>
-</div>
 
-<div class="trip-list">
-    {% if news.count > 0 %}
-    <div class="news">
-        <h2>Latest News</h2>
-        {% for item in news %}
-        <div class="news-item">
-            <h3>{{ item.title }}</h3>
-            <p>{{ item.body }}</p>
-            <p>Posted on {{ item.created|date:"d/m/Y H:i" }}</p>
+{% load static %}
+
+<div style="background-image: url({% static 'app/bg/20191028_163558.jpg' %}); background-size: cover; height: 700px; padding: 20px;">
+    <div class="jumbotron jumbotron-fluid" style="background-color: rgba(255, 255, 255, 0.4); padding: 20px;">
+        <h1>Where to next?</h1>
+    </div>
+    <div class="container">
+        <div class="row" style="margin-top:250px; padding-bottom:125px">
+            <div class="col-md-6"style="color:white">
+                <h2>Let's explore the world together!</h2>
+                <p>You see what I see! follow me around the world to experience new countries and cultures! Be sure to subscribe for regular updates.</p>
+            </div>
+            <div class="col-md-6">
+                {% if news.count > 0 %}
+        <div class="news" style="color: white">
+            <h2>Latest News</h2>
+            {% for item in news %}
+            <div class="news-item" style="margin-bottom: 20px;">
+                <p>{{ item.created|date:"d/m/Y H:i" }} | <strong>{{ item.title }}:</strong> {{ item.body }}</p>
+            </div>
+            {% endfor %}
         </div>
-        {% endfor %}
-    </div>
-    {% endif %}
+        {% endif %}
+            </div>
+        </div>
+    <!-- Using margin to create space between sections -->
+   
 </div>
 
-
+<div class="container-fluid">
+    <!-- Loop through trips, creating a new row for each trip -->
     {% for trip in trips %}
-    <div class="trip-entry">
-        <h3>{{ trip.title}}</h3>
-        <p>{{ trip.description }}</p>
-        <a href="{% url 'blogList' pk=trip.id %}" class="btn btn-primary">View Trip</a>
+        <!-- Start of the row for each trip with background color -->
+        <div class="row mb-5" style="padding: 20px; background-color: {% if forloop.counter|divisibleby:2 %}#262626{% else %}{% endif %};">
+            {% if forloop.counter == 1 %}
+                <!-- First trip with image on the left and content on the right -->
+                <div class="col-md-8 d-flex align-items-center justify-content-center">
+                    IMAGE odd
+                </div>
+                <div class="col-md-4">
+                    <div class="card">
+                        <div class="card-body" style="padding: 20px; color: black;">
+                            <h1 class="card-title">{{ trip.title }}</h1>
+                            <p class="card-text">{{ trip.description }}</p>
+                            <a href="{% url 'blogList' pk=trip.id %}" style="color: black; font-weight: bold; text-decoration: underline;">View Trip</a>
+
+                            {% if user.is_staff %}
+                                <a href="{% url 'tripUpdate' pk=trip.id %}" class="btn btn-secondary">Edit Trip</a>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+            {% elif forloop.counter|divisibleby:2 and forloop.counter != 1 %}
+                <!-- Even loop counter: Content on the left, image on the right -->
+                <div class="col-md-4">
+                    <div class="card">
+                        <div class="card-body" style="padding: 20px; color: white;">
+                            <h1 class="card-title">{{ trip.title }}</h1>
+                            <p class="card-text">{{ trip.description }}</p>
+                            <a href="{% url 'blogList' pk=trip.id %}" style="color: white; font-weight: bold; text-decoration: underline;">View Trip</a>
+
+                            {% if user.is_staff %}
+                                <a href="{% url 'tripUpdate' pk=trip.id %}" class="btn btn-secondary">Edit Trip</a>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-8 d-flex align-items-center justify-content-center">
+                    IMAGE even
+                </div>
+            {% else %}
+                <!-- Odd trip (excluding the first): Image on the left, content on the right -->
+                <div class="col-md-8 d-flex align-items-center justify-content-center">
+                    IMAGE odd
+                </div>
+                <div class="col-md-4">
+                    <div class="card">
+                        <div class="card-body" style="padding: 20px; color: black;">
+                            <h1 class="card-title">{{ trip.title }}</h1>
+                            <p class="card-text">{{ trip.description }}</p>
+                            <a href="{% url 'blogList' pk=trip.id %}" style="color: black; font-weight: bold; text-decoration: underline;">View Trip</a>
+
+                            {% if user.is_staff %}
+                                <a href="{% url 'tripUpdate' pk=trip.id %}" class="btn btn-secondary">Edit Trip</a>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+            {% endif %}
+        </div>
+
+        <style>
+            .thin-white-border {
+                border: 7px solid white;  /* 1-pixel wide solid white border */
+            }
+        </style>
         
-        <!-- Conditional for authenticated users -->
-        {% if user.is_staff %}
-            <!-- Update Trip -->
-            <a href="{% url 'tripUpdate' pk=trip.id %}" class="btn btn-primary">Edit Trip</a>
+        <!-- Add an extra row between the first and second trip -->
+        {% if forloop.counter == 1 %}
+            <div class="row mb-5" style="padding: 20px; background-color: black;">
+                {% for image in random_files %}
+                    <div class="col-md-3" style="border: white">
+                        <img src="{% static 'app/Images/' %}{{image}}" class="thin-white-border" alt="Random Image" style="width: 100%; height: auto;">
+                    </div>
+                {% endfor %}
+            </div>
         {% endif %}
-    </div>
     {% endfor %}
 </div>
+
+
 {% endblock %}
