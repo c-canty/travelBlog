@@ -36,6 +36,7 @@ class TripComment(models.Model):
     comment = models.TextField()
     created = models.DateTimeField(auto_now_add=True)
     modified = models.DateTimeField(auto_now=True)
+    author = models.ForeignKey('auth.User', on_delete=models.CASCADE, blank=True, null=True)
 
     def __str__(self):
         return self.comment

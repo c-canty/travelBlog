@@ -22,10 +22,10 @@
                 <a href="/" class="navbar-brand">CC's Travels</a>
             </div>
             <div class="navbar-collapse collapse">
-                {% if user.is_authenticated %}
+                {% if user.is_staff %}
                 <ul class="nav navbar-nav">
-                    <li> <a href={% url "blogCreate" %}>New Entry</a></li>
                     <li> <a href={% url "tripCreate" %}>New Trip</a></li>
+                    <li> <a href={% url "newsCreate" %}>New News</a></li>
 
                 </ul>
                 {% include 'app/loginpartial.html' %}

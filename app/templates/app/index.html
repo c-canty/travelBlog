@@ -1,76 +1,38 @@
 {% extends "app/layout.html" %}
 
 {% block content %}
-
 <div class="jumbotron">
-    <h1>Welcome To My Travel Blog!</h1>
-</div>
-<div class="filter-form">
-    <h3>Filter Blog Entries</h3>
-    <form method="get">
-        <!-- Country filter -->
-        <label for="country">Country:</label>
-        <select name="country" id="country">
-            <option value="">Any</option>
-            {% for country in countries %}
-                <option value="{{ country.name }}"
-                    {% if request.GET.country.name == country.name %}
-                        selected
-                    {% endif %}
-                >
-                    {{ country.name }}
-                </option>
-            {% endfor %}
-        </select>
-
-        <!-- Date range filter -->
-        <label for="start_date">Start Date:</label>
-        <input type="date" name="start_date" value="{{ request.GET.start_date }}">
-
-        <label for="end_date">End Date:</label>
-        <input type="date" name="end_date" value="{{ request.GET.end_date }}">
-
-        <button type="submit" class="btn btn-primary">Filter</button>
-    </form>
+    <h1>Welcome To Our Travel Site!</h1>
 </div>
 
-
-{% for entry in blog_entries %}
-<div class="blog-entry">
-    {% if entry.active or user.is_authenticated %}
-        {% if user.is_authenticated and not entry.active %}
-            <!-- Inactive Entries for Authenticated Users -->
-            <h2 style="color:red">{{ entry.title }}</h2>
-            
-            <h4 style="color:red">{{ entry.city }} - {{ entry.country }} {% for country in countries %}{%if country.name == entry.country %}{{ country.flag }}{% endif %}{% endfor %} </h4>
-            <p style="color:red">{{ entry.body }}</p>
-            <p style="color:red">Posted on {{ entry.created|date:"d/m/Y H:i" }} CEST</p>
-        {% else %}
-            <!-- Active Entries for Everyone -->
-            <h2>{{ entry.title }}</h2>
-            <h4>{{ entry.city }} - {{ entry.country }} {% for country in countries %}{%if country.name == entry.country %}{{ country.flag }}{% endif %}{% endfor %} </h4>
-            <p>{{ entry.body }}</p>
-            <p>Posted on {{ entry.created|date:"d/m/Y H:i" }} CEST</p>
-        {% endif %}
-
-        {% if user.is_authenticated %}
-            <!-- Update Button -->
-            <a href="{% url 'blogUpdate' pk=entry.id %}" class="btn btn-primary">Update</a>
-
-            <!-- Toggle Active/Inactive -->
-            <form action="{% url 'blogActiveToggle' pk=entry.id %}" method="post" style="display: inline;">
-                {% csrf_token %}
-                <input type="hidden" name="blog_id" value="{{ entry.id }}">
-                <button type="submit" class="btn btn-secondary">
-                    {% if entry.active %}
-                        Deactivate
-                    {% else %}
-                        Activate
-                    {% endif %}
-                </button>
-            </form>
-        {% endif %}
+<div class="trip-list">
+    {% if news.count > 0 %}
+    <div class="news">
+        <h2>Latest News</h2>
+        {% for item in news %}
+        <div class="news-item">
+            <h3>{{ item.title }}</h3>
+            <p>{{ item.body }}</p>
+            <p>Posted on {{ item.created|date:"d/m/Y H:i" }}</p>
+        </div>
+        {% endfor %}
+    </div>
     {% endif %}
 </div>
-{% endfor %}
+
+
+    {% for trip in trips %}
+    <div class="trip-entry">
+        <h3>{{ trip.title}}</h3>
+        <p>{{ trip.description }}</p>
+        <a href="{% url 'blogList' pk=trip.id %}" class="btn btn-primary">View Trip</a>
+        
+        <!-- Conditional for authenticated users -->
+        {% if user.is_staff %}
+            <!-- Update Trip -->
+            <a href="{% url 'tripUpdate' pk=trip.id %}" class="btn btn-primary">Edit Trip</a>
+        {% endif %}
+    </div>
+    {% endfor %}
+</div>
 {% endblock %}

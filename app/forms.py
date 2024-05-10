@@ -24,7 +24,7 @@ COUNTRY_CHOICES = [(country.name, country.name) for country in countries] # From
 class BlogEntryCreateForm(forms.ModelForm):
     class Meta:
         model = BlogEntry
-        fields = ['title', 'body', 'city', 'country', 'active', 'trip']  # Include required fields
+        fields = ['title', 'body', 'city', 'country', 'active']  # Include required fields
         widgets = {
             'title': forms.TextInput({
                 'class': 'form-control',
@@ -47,9 +47,7 @@ class BlogEntryCreateForm(forms.ModelForm):
             'active': forms.CheckboxInput({
                 'class': 'form-control',
             }),
-            'trip': forms.Select({
-                'class': 'form-control',
-            }),
+
         }
 
 class BlogEntryUpdateForm(forms.ModelForm):
@@ -81,7 +79,6 @@ class BlogEntryUpdateForm(forms.ModelForm):
             'trip': forms.Select({
                 'class': 'form-control',
             }),
-
         }
 
 class ToggleBlogForm(forms.ModelForm):
@@ -147,17 +144,6 @@ class TripUpdateForm(forms.ModelForm):
         }
 
 class TripCommentCreateForm(forms.ModelForm):
-    class Meta:
-        model = TripComment
-        fields = ['comment']
-        widgets = {
-            'comment': forms.Textarea({
-                'class': 'form-control',
-                'placeholder': 'Comment',
-            }),
-        }
-
-class TripCommentUpdateForm(forms.ModelForm):
     class Meta:
         model = TripComment
         fields = ['comment']

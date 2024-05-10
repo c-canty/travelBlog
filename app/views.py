@@ -7,57 +7,55 @@ from django.utils.dateparse import parse_date
 from django.shortcuts import render, redirect, get_object_or_404
 from django.http import HttpRequest, HttpResponseRedirect, HttpResponse
 from app.models import BlogEntry, Trip, TripComment, NewsFeedEntry, TripPhoto
-from app.forms import BlogEntryCreateForm, BlogEntryUpdateForm, ToggleBlogForm, TripCreateForm
+from app.forms import BlogEntryCreateForm, BlogEntryUpdateForm, ToggleBlogForm, TripCreateForm, NewsFeedEntryCreateForm
 from django.contrib.auth.decorators import login_required
 import pycountry
 from django.views.generic import ListView, DetailView, CreateView, UpdateView, RedirectView, FormView
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.urls import reverse_lazy
+from django.urls import reverse
 
-class HomeListView(ListView):
-    model = BlogEntry
+
+class TripListView(ListView):
+    model = Trip
     template_name = 'app/index.html'
-    context_object_name = 'blog_entries'
-    ordering = ['created']
-
-    def get_queryset(self):
-        queryset = super().get_queryset()  # Start with base queryset
-        country_filter = self.request.GET.get('country')
-        start_date = self.request.GET.get('start_date')
-        end_date = self.request.GET.get('end_date')
-
-        if country_filter:
-            queryset = queryset.filter(country__iexact=country_filter)
-
-        # Parse start and end dates and filter the queryset
-        if start_date or end_date:
-            start = parse_date(start_date)
-            end = parse_date(end_date)
-            
-            # If parsing dates was successful, apply date filters
-            if start and end:
-                queryset = queryset.filter(
-                    created__date__gte=start,
-                    created__date__lte=end
-                )
-            elif start:
-                queryset = queryset.filter(created__date__gte=start)
-            elif end:
-                queryset = queryset.filter(created__date__lte=end)
-
-        return queryset
+    context_object_name = 'trips'
+    ordering = ['-start_date']
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        context['title'] = 'Home Page'
+        context['title'] = 'CC Travels!'
+        context['news'] = NewsFeedEntry.objects.filter(active=True)[:5]
         context['year'] = datetime.now().year
-        context['countries'] = sorted(pycountry.countries, key=lambda c: c.name)
+        return context
+    
 
+class TripCommentCreateView(CreateView, LoginRequiredMixin):
+    model = TripComment
+    fields = ['comment']
+    template_name = 'app/comment_create.html'
+    
+    def form_valid(self, form):
+        trip = Trip.objects.get(pk=self.kwargs['pk'])
+        form.instance.trip = trip
+        form.instance.author = self.request.user
+        # Redirect back to the same trip detail page
+        self.success_url = reverse('blogList', kwargs={'pk': trip.pk})
+        return super().form_valid(form)
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['title'] = 'Create Comment'
+        context['year'] = datetime.now().year
+        context['news'] = NewsFeedEntry.objects.filter(active=True)
+        context['trip'] = Trip.objects.get(pk=self.kwargs['pk'])
+        context['blogs'] = BlogEntry.objects.filter(trip=self.kwargs['pk'])
+        context['comments'] = TripComment.objects.filter(trip=self.kwargs['pk'])
         return context
 
-class BlogCreateView(CreateView, LoginRequiredMixin):
-    model = BlogEntry
-    form_class = BlogEntryCreateForm
+class TripCreateView(CreateView, LoginRequiredMixin):
+    model = Trip
+    form_class = TripCreateForm
     template_name = 'app/generic_form.html'
     success_url = '/'
 
@@ -67,8 +65,58 @@ class BlogCreateView(CreateView, LoginRequiredMixin):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
+        context['title'] = 'Create Trip'
+        context['year'] = datetime.now().year
+        context['initialize_datepicker'] = True  # Unique context variable
+        return context
+
+class TripUpdateView(UpdateView, LoginRequiredMixin):
+    model = Trip
+    form_class = TripCreateForm
+    template_name = 'app/generic_form.html'
+    success_url = '/'
+
+    def form_valid(self, form):
+        form.save()
+        return super().form_valid(form)
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['title'] = 'Update Trip'
+        context['year'] = datetime.now().year
+        context['initialize_datepicker'] = True  # Unique context variable
+        return context
+
+
+class BlogCreateView(CreateView, LoginRequiredMixin):
+    model = BlogEntry
+    form_class = BlogEntryCreateForm
+    template_name = 'app/generic_form.html'
+    
+    # Define a success_url that redirects to a relevant page (could be the trip detail page, or a blog list page)
+    def get_success_url(self):
+        # Redirect back to the detail page of the trip with the given pk
+        return reverse('blogList', kwargs={'pk': self.kwargs['pk']})
+
+    def form_valid(self, form):
+        # Retrieve the trip based on the URL parameter
+        trip = Trip.objects.get(pk=self.kwargs['pk'])
+        # Associate the BlogEntry with the specific trip
+        form.instance.trip = trip
+        
+        # Create a newsfeed entry as before
+        new_news = NewsFeedEntry.objects.create(title=form.cleaned_data['title'], body="NEW BLOG ENTRY!", active=True)
+        
+
+
+        # Call the parent class's form_valid method
+        return super().form_valid(form)
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
         context['title'] = 'Create Blog Entry'
         context['year'] = datetime.now().year
+        context['trip'] = Trip.objects.get(pk=self.kwargs['pk'])  # Pass the trip to the context
         return context
 
 class BlogUpdateView(UpdateView, LoginRequiredMixin):
@@ -102,20 +150,18 @@ class BlogActiveToggleView(UpdateView, LoginRequiredMixin):
     def form_invalid(self, form):
         return HttpResponse("Invalid form data", status=400)
 
-class TripCreateView(CreateView, LoginRequiredMixin):
-    model = Trip
-    form_class = TripCreateForm
+class NewsCreateView(CreateView, LoginRequiredMixin):
+    model = NewsFeedEntry
+    form_class = NewsFeedEntryCreateForm
     template_name = 'app/generic_form.html'
     success_url = '/'
 
     def form_valid(self, form):
         form.save()
         return super().form_valid(form)
-
+    
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        context['title'] = 'Create Trip'
+        context['title'] = 'Create News Entry'
         context['year'] = datetime.now().year
-        context['initialize_datepicker'] = True  # Unique context variable
         return context
-
