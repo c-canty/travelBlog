@@ -41,14 +41,16 @@
             {% if forloop.counter == 1 %}
                 <!-- First trip with image on the left and content on the right -->
                 <div class="col-md-8 d-flex align-items-center justify-content-center">
-                    IMAGE odd
+                    {% if trip.imageLink %}
+                        <img src="{% static 'app/Images/' %}{{ trip.imageLink }}" alt="{{ trip.title }} image" style="width: 100%; height: auto;">
+                    {% endif %}
                 </div>
                 <div class="col-md-4">
                     <div class="card">
                         <div class="card-body" style="padding: 20px; color: black;">
                             <h1 class="card-title">{{ trip.title }}</h1>
                             <p class="card-text">{{ trip.description }}</p>
-                            <a href="{% url 'blogList' pk=trip.id %}" style="color: black; font-weight: bold; text-decoration: underline;">View Trip</a>
+                            <a href="{% url 'blogList' pk=trip.id %}" style="color: black; font-weight: bold; text-decoration: underline;">Blogs</a>
 
                             {% if user.is_staff %}
                                 <a href="{% url 'tripUpdate' pk=trip.id %}" class="btn btn-secondary">Edit Trip</a>
@@ -63,7 +65,7 @@
                         <div class="card-body" style="padding: 20px; color: white;">
                             <h1 class="card-title">{{ trip.title }}</h1>
                             <p class="card-text">{{ trip.description }}</p>
-                            <a href="{% url 'blogList' pk=trip.id %}" style="color: white; font-weight: bold; text-decoration: underline;">View Trip</a>
+                            <a href="{% url 'blogList' pk=trip.id %}" style="color: white; font-weight: bold; text-decoration: underline;">Blogs</a>
 
                             {% if user.is_staff %}
                                 <a href="{% url 'tripUpdate' pk=trip.id %}" class="btn btn-secondary">Edit Trip</a>
@@ -72,19 +74,23 @@
                     </div>
                 </div>
                 <div class="col-md-8 d-flex align-items-center justify-content-center">
-                    IMAGE even
+                    {% if trip.imageLink %}
+                        <img src="{% static 'app/Images/' %}{{ trip.imageLink }}" alt="{{ trip.title }} image" style="width: 100%; height: auto;">
+                    {% endif %}
                 </div>
             {% else %}
                 <!-- Odd trip (excluding the first): Image on the left, content on the right -->
                 <div class="col-md-8 d-flex align-items-center justify-content-center">
-                    IMAGE odd
+                    {% if trip.imageLink %}
+                        <img src="{% static 'app/Images/' %}{{ trip.imageLink }}" alt="{{ trip.title }} image" style="width: 100%; height: auto;">
+                    {% endif %}
                 </div>
                 <div class="col-md-4">
                     <div class="card">
                         <div class="card-body" style="padding: 20px; color: black;">
                             <h1 class="card-title">{{ trip.title }}</h1>
                             <p class="card-text">{{ trip.description }}</p>
-                            <a href="{% url 'blogList' pk=trip.id %}" style="color: black; font-weight: bold; text-decoration: underline;">View Trip</a>
+                            <a href="{% url 'blogList' pk=trip.id %}" style="color: black; font-weight: bold; text-decoration: underline;">Blogs</a>
 
                             {% if user.is_staff %}
                                 <a href="{% url 'tripUpdate' pk=trip.id %}" class="btn btn-secondary">Edit Trip</a>
@@ -95,24 +101,58 @@
             {% endif %}
         </div>
 
-        <style>
-            .thin-white-border {
-                border: 7px solid white;  /* 1-pixel wide solid white border */
-            }
-        </style>
         
-        <!-- Add an extra row between the first and second trip -->
+        
         {% if forloop.counter == 1 %}
-            <div class="row mb-5" style="padding: 20px; background-color: black;">
-                {% for image in random_files %}
-                    <div class="col-md-3" style="border: white">
-                        <img src="{% static 'app/Images/' %}{{image}}" class="thin-white-border" alt="Random Image" style="width: 100%; height: auto;">
-                    </div>
-                {% endfor %}
-            </div>
+        <div id="imageContainer" class="row mb-5" style="background-color: white; padding-bottom:20px; padding-top:20px;">
+            {% for image in random_files|slice:":4" %} {# Load only the first 4 images #}
+                <div class="col-md-3 px-0" style="padding-left: 20px; padding-right: 20px;">
+                    <img id="image{{ forloop.counter }}" src="{% static 'app/Images/' %}{{ image }}" alt="Random Image" style="width: 100%; height: auto;">
+                </div>
+            {% endfor %}
+        </div>
+        {% endif %}
+        {% if forloop.counter == 2 %}
+        <div  class="row mb-5" style="background-color: #baccde; padding-bottom:20px; padding-top:20px">
+                <div class="col-md-3 px-0" style="padding-left: 9px; padding-right: 9px; color:black">
+                    <h2>subscribe</h2>
+                </div>
+        </div>
         {% endif %}
     {% endfor %}
 </div>
+<script>
+    function reloadImages() {
+        var images = [{% for image in random_files %}'{{ image }}',{% endfor %}]; // List of all images
+        images = shuffle(images); // Shuffle the list of images
 
+        // Update the source of the first 4 images
+        for (var i = 0; i < 4; i++) {
+            document.getElementById("image" + (i + 1)).src = "{% static 'app/Images/' %}" + images[i] + "?t=" + new Date().getTime();
+        }
+    }
+
+    // Function to shuffle an array
+    function shuffle(array) {
+        var currentIndex = array.length, temporaryValue, randomIndex;
+
+        // While there remain elements to shuffle...
+        while (0 !== currentIndex) {
+
+            // Pick a remaining element...
+            randomIndex = Math.floor(Math.random() * currentIndex);
+            currentIndex -= 1;
+
+            // And swap it with the current element.
+            temporaryValue = array[currentIndex];
+            array[currentIndex] = array[randomIndex];
+            array[randomIndex] = temporaryValue;
+        }
+
+        return array;
+    }
+
+    setInterval(reloadImages, 10000); // Reload images every 10 seconds (10000 milliseconds)
+</script>
 
 {% endblock %}

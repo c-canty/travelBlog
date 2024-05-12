@@ -1,69 +1,126 @@
 {% extends "app/layout.html" %}
 
 {% block content %}
-<div class="container">
-    <!-- Trip Details -->
-    <h1>{{ trip.title }}</h1>
-    {%if user.is_staff %}
-    <a href={% url "blogCreate" pk=trip.id %}>New Entry</a>
-    {% endif %}
-    
-    {% if trip.imageLink %}
-    <div class="trip-image">
-        <img src="{{ trip.imageLink }}" alt="{{ trip.title }} image" style="max-width: 100%; height: auto;">
+{% load static %}
+<div style="background-image: url({% static 'app/Images/' %}{{ trip.imageLink }}); background-size: cover; height: 700px; padding: 20px;">
+    <div class="jumbotron jumbotron-fluid" style="background-color: rgba(255, 255, 255, 0.2); color:black; padding: 20px;">
+        <h1>{{ trip.title }}</h1>
     </div>
-    {% endif %}
-    
-    <div class="trip-info">
-        <p><strong>Description:</strong> {{ trip.description }}</p>
-        <p><strong>Start Date:</strong> {{ trip.start_date|date:"d/m/Y" }}</p>
-        <p><strong>End Date:</strong> {{ trip.end_date|date:"d/m/Y" }}</p>
-        <p><strong>Created on:</strong> {{ trip.created|date:"d/m/Y H:i" }}</p>
-    </div>
-
-    <!-- Blog Entries Related to This Trip -->
-    <div class="blog-list">
-        <h2>Related Blogs</h2>
-        {% if blogs %}
-            {% for blog in blogs %}
-            <div class="blog-entry">
-                <h3>{{ blog.title }}</h3>
-                <p><strong>Location:</strong> {{ blog.city }}, {{ blog.country }}</p>
-                <p>{{ blog.body }}</p>
-                <p>Posted on {{ blog.created|date:"d/m/Y H:i" }}</p>
-                {% if blog.imageLink %}
-                    <img src="{{ blog.imageLink }}" alt="{{ blog.title }} image" style="max-width: 100%; height: auto;">
+    <div class="container-fluid">
+        <div class="row" style="margin-top:150px; background-color: rgba(0, 0, 0, 0.5)" >
+            <div class="col-md-1"></div>
+            <div class="col-md-5"style="color:white">
+                <h2>What're we doing here??</h2>
+                <p>{{ trip.description }}</p>
+            </div>
+            <div class="col-md-5">
+                {% if trip.start_date %}
+                <div class="trip-info" style="color:white">
+                    <h2>Trip Details</h2>
+                    <p><strong>Start Date:</strong> {{ trip.start_date|date:"d/m/Y" }}</p>
+                    <p><strong>End Date:</strong> {{ trip.end_date|date:"d/m/Y" }}</p>
+                </div>
                 {% endif %}
             </div>
-            {% if user.is_staff %}
-            <a href={% url "blogUpdate" pk=blog.id %}>Edit Entry</a>
+            <div class="col-md-1"></div>
+        </div>
+    <!-- Using margin to create space between sections -->
+   
+</div>
+
+<div class="container-flex" style="padding-top:280px">
+    {% if trip %}
+    <!-- Trip Details -->
+    <!-- Blog Entries Related to This Trip -->
+    <div class="blog-list">
+        {% if blogs %}
+        {% for blog in blogs %}
+        {% if user.is_staff or blog.active %}
+        <div class="row mb-5" style="background-color: {% if forloop.counter|divisibleby:2 %}#222222{% else %}#ffffff{% endif %};">
+            {% if forloop.counter|divisibleby:2 %}
+            <div class="col-md-4">
+                <div class="card">
+                    <div class="card-body" style="color:{% if blog.active %}white{% else %}red{% endif %}; padding:20px">
+                        <h3 class="card-title">{{ blog.title }}</h3>
+                        <p class="card-text">{{ blog.body }}</p>
+                        <p class="card-text"><small class="text-muted">Location: {{ blog.city }}, {{ blog.country }}</small></p>
+                        <p class="card-text"><small class="text-muted">Posted on {{ blog.created|date:"d/m/Y H:i" }}</small></p>
+                        {% if user.is_staff %}
+                            <a href="{% url "blogUpdate" pk=blog.id %}" class="btn btn-primary">Edit Entry</a>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>  
+            <div class="col-md-8">
+                {% if blog.imageLink %}
+                <img src="{% static 'app/Images/' %}{{ blog.imageLink }}" style="width: 100%; height: auto;">
+                {% endif %}
+            </div>
+            {% else %}
+                <div class="col-md-8">
+                    {% if blog.imageLink %}
+                    <img src="{% static 'app/Images/' %}{{ blog.imageLink }}" style="width: 100%; height: auto;">
+                    {% endif %}
+                </div>
+                <div class="col-md-4">
+                    <div class="card">
+                        <div class="card-body" style="padding:20px; color: {% if blog.active %}black{% else %}red{% endif %}">
+                            <h3 class="card-title">{{ blog.title }}</h3>
+                            <p class="card-text">{{ blog.body }}</p>
+                            <p class="card-text"><small class="text-muted">Location: {{ blog.city }}, {{ blog.country }}</small></p>
+                            <p class="card-text"><small class="text-muted">Posted on {{ blog.created|date:"d/m/Y H:i" }}</small></p>
+                            {% if user.is_staff %}
+                                <a href="{% url "blogUpdate" pk=blog.id %}" class="btn btn-primary">Edit Entry 1</a>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
             {% endif %}
-            {% endfor %}
+        </div>
+        {% endif %}
+    {% endfor %}
         {% else %}
             <p>No blogs found for this trip.</p>
-        {% endif %}
-        {% if comments %}
-            <h2>Comments</h2>
-            {% for comment in comments %}
-            <div class="comment-entry">
-                <p><strong>{{ comment.created|date:"d/m/Y H:i" }} | {{ comment.author }}:</strong> {{ comment.comment }} </p>
-            </div>
-            {% endfor %}
-        {% else %}
-            <p>No comments found for this trip.</p>
         {% endif %}
     </div>
 
     <!-- Comment Form -->
-    {% if user.is_authenticated %}
-    <div class="comment-section">
-        <h2>Leave a Comment</h2>
-        <form method="post">
-            {% csrf_token %}
-            {{ form.as_p }}
-            <button type="submit" class="btn btn-primary">Submit</button>
-        </form>
+    <div class="row">
+        <div class="col-md-1"></div>
+        <div class="col-md-5">
+            <div class="comment-section" style="padding: 50px">
+                {% if comments %}
+                    <h2>Comments</h2>
+                    <ul>
+                        {% for comment in comments %}
+                            <li>{{ comment.created|date:"d/m/Y H:i" }} - <strong>{{ comment.author }}:</strong> {{ comment.comment }}</li>
+                        {% endfor %}
+                    </ul>
+                {% else %}
+                    <p>Be the first to comment!</p>
+                {% endif %}
+            </div>
+        </div>
+        <div class="col-md-5">
+                {% if user.is_authenticated %}
+                    <h2>Leave a Comment</h2>
+                    <form method="post">
+                        {% csrf_token %}
+                        {{ form.as_p }}
+                        <button type="submit" class="btn btn-primary">Submit</button>
+                    </form>
+                {% else %}
+                    <p><a href="{% url 'login' %}">Log in</a> to leave a comment.</p>
+                {% endif %}
+                
+            </div>
+        </div>
+        <div class="col-md-1"></div>
     </div>
+    
+    {% else %}
+    <p>No trip found.</p>
     {% endif %}
 </div>
+
 {% endblock %}

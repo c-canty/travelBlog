@@ -16,6 +16,7 @@ from django.urls import reverse_lazy
 from django.urls import reverse
 from django.conf import settings
 import os
+from django.core.files.storage import FileSystemStorage
 import random
 
 
@@ -29,7 +30,6 @@ class TripListView(ListView):
         context = super().get_context_data(**kwargs)
 
         # Define the folder where your images are stored (relative to the Django base directory)
-        # If your project base directory is `TravelBlogProject`
         folder_path = os.path.join(settings.BASE_DIR, 'app', 'static', 'app', 'Images')
 
         # List all file names in the folder
@@ -39,21 +39,20 @@ class TripListView(ListView):
             all_files = []
             print(f"Error listing files: {e}")
 
-        # Ensure at least 4-5 files are available before random sampling
-        if len(all_files) >= 5:
-            random_files = random.sample(all_files, 4)  # Sample 5 random unique file names
+        # Ensure at least 20 files are available before random sampling
+        if len(all_files) >= 20:
+            random_files = random.sample(all_files, 20)  # Sample 20 random unique file names
         else:
-            random_files = all_files  # Fallback to all available if fewer than 5
+            random_files = all_files  # Fallback to all available files if fewer than 20
 
         # Add other context variables
         context['title'] = 'CC Travels!'
         context['news'] = NewsFeedEntry.objects.filter(active=True).order_by('id')[:5]
         context['year'] = datetime.now().year
         context['random_files'] = random_files  # Adding random file names to the context
-        for image in random_files:
-            print(image)
 
         return context
+
     
 
 class TripCommentCreateView(CreateView, LoginRequiredMixin):
@@ -73,20 +72,23 @@ class TripCommentCreateView(CreateView, LoginRequiredMixin):
         context = super().get_context_data(**kwargs)
         context['title'] = 'Create Comment'
         context['year'] = datetime.now().year
-        context['news'] = NewsFeedEntry.objects.filter(active=True)
         context['trip'] = Trip.objects.get(pk=self.kwargs['pk'])
         context['blogs'] = BlogEntry.objects.filter(trip=self.kwargs['pk'])
         context['comments'] = TripComment.objects.filter(trip=self.kwargs['pk'])
         return context
 
-class TripCreateView(CreateView, LoginRequiredMixin):
+class TripCreateView(LoginRequiredMixin, CreateView):
     model = Trip
     form_class = TripCreateForm
     template_name = 'app/generic_form.html'
     success_url = '/'
 
     def form_valid(self, form):
-        form.save()
+        image_file = self.request.FILES.get('image')
+        if image_file:
+            fs = FileSystemStorage(location='app/static/app/Images/')
+            filename = fs.save(image_file.name, image_file)
+            form.instance.imageLink = filename
         return super().form_valid(form)
 
     def get_context_data(self, **kwargs):
@@ -94,6 +96,7 @@ class TripCreateView(CreateView, LoginRequiredMixin):
         context['title'] = 'Create Trip'
         context['year'] = datetime.now().year
         context['initialize_datepicker'] = True  # Unique context variable
+        context['image_upload'] = True
         return context
 
 class TripUpdateView(UpdateView, LoginRequiredMixin):
@@ -103,14 +106,19 @@ class TripUpdateView(UpdateView, LoginRequiredMixin):
     success_url = '/'
 
     def form_valid(self, form):
-        form.save()
+        image_file = self.request.FILES.get('image')
+        if image_file:
+            fs = FileSystemStorage(location='app/static/app/Images/')
+            filename = fs.save(image_file.name, image_file)
+            form.instance.imageLink = filename
         return super().form_valid(form)
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context['title'] = 'Update Trip'
         context['year'] = datetime.now().year
-        context['initialize_datepicker'] = True  # Unique context variable
+        context['initialize_datepicker'] = True
+        context['image_upload'] = True
         return context
 
 
@@ -121,19 +129,24 @@ class BlogCreateView(CreateView, LoginRequiredMixin):
     
     
     def get_success_url(self):
-        # Redirect back to the detail page of the trip with the given pk
-        return reverse('blogList', kwargs={'pk': self.kwargs['pk']})
+    # Assuming 'trip' is the foreign key relationship to the Trip model in the Blog model
+        trip_id = self.object.trip.id
+    # Redirect back to the detail page of the trip with the given trip_id
+        return reverse('blogList', kwargs={'pk': trip_id})
 
     def form_valid(self, form):
         # Retrieve the trip based on the URL parameter
         trip = Trip.objects.get(pk=self.kwargs['pk'])
         # Associate the BlogEntry with the specific trip
+        image_file = self.request.FILES.get('image')
+        if image_file:
+            fs = FileSystemStorage(location='app/static/app/Images/')
+            filename = fs.save(image_file.name, image_file)
+            form.instance.imageLink = filename
         form.instance.trip = trip
         
         # Create a newsfeed entry as before
         new_news = NewsFeedEntry.objects.create(title=form.cleaned_data['title'], body="NEW BLOG ENTRY!", active=True)
-        
-
 
         # Call the parent class's form_valid method
         return super().form_valid(form)
@@ -143,15 +156,26 @@ class BlogCreateView(CreateView, LoginRequiredMixin):
         context['title'] = 'Create Blog Entry'
         context['year'] = datetime.now().year
         context['trip'] = Trip.objects.get(pk=self.kwargs['pk'])  # Pass the trip to the context
+        context['image_upload'] = True
         return context
 
 class BlogUpdateView(UpdateView, LoginRequiredMixin):
     model = BlogEntry
     form_class = BlogEntryUpdateForm
     template_name = 'app/generic_form.html'
-    success_url = '/'
+    def get_success_url(self):
+    # Assuming 'trip' is the foreign key relationship to the Trip model in the Blog model
+        trip_id = self.object.trip.id
+    # Redirect back to the detail page of the trip with the given trip_id
+        return reverse('blogList', kwargs={'pk': trip_id})
+
 
     def form_valid(self, form):
+        image_file = self.request.FILES.get('image')
+        if image_file:
+            fs = FileSystemStorage(location='app/static/app/Images/')
+            filename = fs.save(image_file.name, image_file)
+            form.instance.imageLink = filename
         form.save()
         return super().form_valid(form)
 
@@ -159,6 +183,7 @@ class BlogUpdateView(UpdateView, LoginRequiredMixin):
         context = super().get_context_data(**kwargs)
         context['title'] = 'Update Blog Entry'
         context['year'] = datetime.now().year
+        context['image_upload'] = True
         return context
 
 class BlogActiveToggleView(UpdateView, LoginRequiredMixin):

@@ -1,15 +1,24 @@
 {% extends "app/layout.html" %}
 
 {% block content %}
-<h1>{{ title }}</h1>
+<div class="container">
+    <h1>{{ title }}</h1>
 
-<form method="post">
-    {% csrf_token %}
-    
-    {{ form.as_p }}
-    
-    <button type="submit">Submit</button>
-</form>
+    <form method="post" enctype="multipart/form-data"> <!-- Add enctype for file upload -->
+        {% csrf_token %}
+        
+        {{ form.as_p }}
+        
+        {% if image_upload %}
+        <div class="form-group">
+            <label for="id_image">Image:</label>
+            <input type="file" name="image" id="id_image">
+        </div>
+        {% endif %}
+        
+        <button type="submit">Submit</button>
+    </form>
+</div>
 
 
 {% endblock %}
