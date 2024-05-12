@@ -10,8 +10,46 @@
     <script src="{% static 'app/scripts/modernizr-2.6.2.js' %}"></script>
 </head>
 
+<style>
+    .navbar-scrolled-cc {
+        background-color: #222222;
+        border-color: #080808;
+        color: white;
+        
+    }
+
+    .navbar {
+        transition: background-color 200ms linear;
+    }
+
+    /* Navbar links */
+    .navbar-nav li a {
+        color: #222222; /* Initial text color */
+    }
+
+    /* Navbar links when scrolled */
+    .navbar-scrolled-cc .navbar-nav li a {
+        color: white; /* Change to white when navbar is scrolled */
+    }
+
+    /* Navbar links hover */
+    .navbar-nav li a:hover {
+        color: gray; /* Change to your desired hover color */
+    }
+
+    /* Navbar brand */
+    .navbar-brand {
+        color: #222222; /* Initial brand color */
+    }
+
+    /* Navbar brand when scrolled */
+    .navbar-scrolled-cc .navbar-brand {
+        color: white; /* Change to white when navbar is scrolled */
+    }
+</style>
+
 <body style="background-color: white">
-    <div class="navbar navbar-inverse navbar-fixed-top">
+    <div class="navbar navbar-inital navbar-fixed-top">
         <div class="container-flex">
             <div class="navbar-header">
                 <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-collapse">
@@ -33,6 +71,17 @@
             </div>
         </div>
     </div>
+    <script>
+        const nav = document.querySelector('.navbar');
+        window.addEventListener('scroll', () => {
+            if (window.scrollY > 50) {
+                nav.classList.add('navbar-scrolled-cc');
+            } else {
+                nav.classList.remove('navbar-scrolled-cc'); // Add this line if you want to remove the class when scrolling up
+            }
+        });
+    </script>
+    
 
     <div class="container-flex ">
 {% block content %}{% endblock %}

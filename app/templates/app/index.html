@@ -5,16 +5,17 @@
 {% load static %}
 
 <div style="background-image: url({% static 'app/bg/20191028_163558.jpg' %}); background-size: cover; height: 700px; padding: 20px;">
-    <div class="jumbotron jumbotron-fluid" style="background-color: rgba(255, 255, 255, 0.4); padding: 20px;">
+    <div class="jumbotron jumbotron-fluid" style="background-color: rgba(255, 255, 255, 0.2); color:black; padding: 20px;">
         <h1>Where to next?</h1>
     </div>
     <div class="container">
-        <div class="row" style="margin-top:250px; padding-bottom:125px">
-            <div class="col-md-6"style="color:white">
+        <div class="row" style="margin-top:150px; background-color: rgba(0, 0, 0, 0.5)" >
+            <div class="col-md-1"></div>
+            <div class="col-md-5"style="color:white">
                 <h2>Let's explore the world together!</h2>
                 <p>You see what I see! follow me around the world to experience new countries and cultures! Be sure to subscribe for regular updates.</p>
             </div>
-            <div class="col-md-6">
+            <div class="col-md-5">
                 {% if news.count > 0 %}
         <div class="news" style="color: white">
             <h2>Latest News</h2>
@@ -26,16 +27,17 @@
         </div>
         {% endif %}
             </div>
+            <div class="col-md-1"></div>
         </div>
     <!-- Using margin to create space between sections -->
    
 </div>
 
-<div class="container-fluid">
+<div class="container-fluid" style="padding-top:230px">
     <!-- Loop through trips, creating a new row for each trip -->
     {% for trip in trips %}
         <!-- Start of the row for each trip with background color -->
-        <div class="row mb-5" style="padding: 20px; background-color: {% if forloop.counter|divisibleby:2 %}#262626{% else %}{% endif %};">
+        <div class="row mb-5" style="padding: 20px; background-color: {% if forloop.counter|divisibleby:2 %}#222222{% else %}{% endif %};">
             {% if forloop.counter == 1 %}
                 <!-- First trip with image on the left and content on the right -->
                 <div class="col-md-8 d-flex align-items-center justify-content-center">
