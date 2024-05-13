@@ -2,6 +2,8 @@
 
 {% block content %}
 
+<div class="container">
+    
 <h2>{{ title }}</h2>
 <div class="row">
     <div class="col-md-8">
@@ -37,6 +39,8 @@
     <div class="col-md-4">
         <section id="socialLoginForm"></section>
     </div>
+</div>
+Don't have an account? <a href="{% url 'signup' %}">Sign up here!</a>
 </div>
 
 {% endblock %}

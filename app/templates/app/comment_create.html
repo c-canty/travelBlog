@@ -3,8 +3,9 @@
 {% block content %}
 {% load static %}
 <div style="background-image: url({% static 'app/Images/' %}{{ trip.imageLink }}); background-size: cover; height: 700px; padding: 20px;">
-    <div class="jumbotron jumbotron-fluid" style="background-color: rgba(255, 255, 255, 0.2); color:black; padding: 20px;">
-        <h1>{{ trip.title }}</h1>
+    <div class="jumbotron jumbotron-fluid" style="background-color: rgba(255, 255, 255, 0.5); color:black; padding: 20px;">
+        <h1>{{ trip.title }}</h1> 
+        
     </div>
     <div class="container-fluid">
         <div class="row" style="margin-top:150px; background-color: rgba(0, 0, 0, 0.5)" >
@@ -32,11 +33,30 @@
     {% if trip %}
     <!-- Trip Details -->
     <!-- Blog Entries Related to This Trip -->
+    {% if user.is_staff %}
+            <a href="{% url 'tripImageCreate' pk=trip.id %}" class="btn btn-secondary">Add image</a>
+        {% endif %}
     <div class="blog-list">
+
+        {% if trip_images %}
+        <div class="row mb-5" style="background-color:black;">
+            {% for trip_image in trip_images %}
+                {% if forloop.counter0|divisibleby:4 %}
+                    </div>
+                    <div class="row mb-5" style="background-color:white; padding-top: 20px;">
+                {% endif %}
+                <div class="col-md-3">
+                    <img src="{% static 'app/Images/' %}{{ trip_image.imageLink }}" style="width: 100%; height: auto;">
+                </div>
+            {% endfor %}
+        </div>
+    {% endif %}
+    
+
         {% if blogs %}
         {% for blog in blogs %}
         {% if user.is_staff or blog.active %}
-        <div class="row mb-5" style="background-color: {% if forloop.counter|divisibleby:2 %}#222222{% else %}#ffffff{% endif %};">
+        <div class="row mb-5" style="background-color: {% if forloop.counter|divisibleby:2 %}#222222{% else %}#ffffff{% endif %}; padding-top:20px">
             {% if forloop.counter|divisibleby:2 %}
             <div class="col-md-4">
                 <div class="card">

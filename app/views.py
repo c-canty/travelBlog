@@ -6,8 +6,8 @@ from datetime import datetime
 from django.utils.dateparse import parse_date
 from django.shortcuts import render, redirect, get_object_or_404
 from django.http import HttpRequest, HttpResponseRedirect, HttpResponse
-from app.models import BlogEntry, Trip, TripComment, NewsFeedEntry, TripPhoto
-from app.forms import BlogEntryCreateForm, BlogEntryUpdateForm, ToggleBlogForm, TripCreateForm, NewsFeedEntryCreateForm
+from app.models import BlogEntry, Trip, TripComment, NewsFeedEntry, TripPhoto, UserSubscription
+from app.forms import BlogEntryCreateForm, BlogEntryUpdateForm, ToggleBlogForm, TripCreateForm, NewsFeedEntryCreateForm, UserCreationForm
 from django.contrib.auth.decorators import login_required
 import pycountry
 from django.views.generic import ListView, DetailView, CreateView, UpdateView, RedirectView, FormView
@@ -18,6 +18,8 @@ from django.conf import settings
 import os
 from django.core.files.storage import FileSystemStorage
 import random
+from django.contrib.auth.models import User
+
 
 
 class TripListView(ListView):
@@ -53,8 +55,6 @@ class TripListView(ListView):
 
         return context
 
-    
-
 class TripCommentCreateView(CreateView, LoginRequiredMixin):
     model = TripComment
     fields = ['comment']
@@ -75,6 +75,7 @@ class TripCommentCreateView(CreateView, LoginRequiredMixin):
         context['trip'] = Trip.objects.get(pk=self.kwargs['pk'])
         context['blogs'] = BlogEntry.objects.filter(trip=self.kwargs['pk'])
         context['comments'] = TripComment.objects.filter(trip=self.kwargs['pk'])
+        context['trip_images'] = TripPhoto.objects.filter(trip=self.kwargs['pk'])
         return context
 
 class TripCreateView(LoginRequiredMixin, CreateView):
@@ -121,7 +122,6 @@ class TripUpdateView(UpdateView, LoginRequiredMixin):
         context['image_upload'] = True
         return context
 
-
 class BlogCreateView(CreateView, LoginRequiredMixin):
     model = BlogEntry
     form_class = BlogEntryCreateForm
@@ -139,14 +139,19 @@ class BlogCreateView(CreateView, LoginRequiredMixin):
         trip = Trip.objects.get(pk=self.kwargs['pk'])
         # Associate the BlogEntry with the specific trip
         image_file = self.request.FILES.get('image')
+        form.instance.trip = trip
         if image_file:
             fs = FileSystemStorage(location='app/static/app/Images/')
             filename = fs.save(image_file.name, image_file)
             form.instance.imageLink = filename
-        form.instance.trip = trip
+            trip_image = TripPhoto.objects.create(trip=trip, imageLink=filename)
+            trip_image.save()
+
         
         # Create a newsfeed entry as before
         new_news = NewsFeedEntry.objects.create(title=form.cleaned_data['title'], body="NEW BLOG ENTRY!", active=True)
+        new_news.save()
+
 
         # Call the parent class's form_valid method
         return super().form_valid(form)
@@ -176,6 +181,8 @@ class BlogUpdateView(UpdateView, LoginRequiredMixin):
             fs = FileSystemStorage(location='app/static/app/Images/')
             filename = fs.save(image_file.name, image_file)
             form.instance.imageLink = filename
+            trip_image = TripPhoto.objects.create(trip=form.instance.trip, imageLink=filename)
+            trip_image.save()
         form.save()
         return super().form_valid(form)
 
@@ -216,3 +223,55 @@ class NewsCreateView(CreateView, LoginRequiredMixin):
         context['title'] = 'Create News Entry'
         context['year'] = datetime.now().year
         return context
+
+class UserSignUpCreateView(CreateView):
+    model = User
+    form_class = UserCreationForm
+    template_name = 'app/signup.html'
+    success_url = '/login/'
+
+    def form_valid(self, form):
+        form.instance.set_password(form.cleaned_data['password'])
+        response = super().form_valid(form)
+
+        if form.cleaned_data['subscribe_updates']:
+            UserSubscription.objects.create(user=form.instance, subscribed=True)
+        else:
+            UserSubscription.objects.create(user=form.instance, subscribed=False)
+        return response
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['title'] = 'Sign Up'
+        context['year'] = datetime.now().year
+        return context
+    
+# Update TripImageCreateView to use the correct form class and handle image upload properly
+@login_required
+def trip_image_create_view(request, pk):
+    if request.method == 'POST':
+        # Retrieve the trip based on the URL parameter
+        trip = Trip.objects.get(pk=pk)
+        
+        # Retrieve the image file from the request
+        image_file = request.FILES.get('image')
+        
+        # If an image file is provided, save it and create a TripPhoto object
+        if image_file:
+            fs = FileSystemStorage(location='app/static/app/Images/')
+            filename = fs.save(image_file.name, image_file)
+            TripPhoto.objects.create(trip=trip, imageLink=filename)
+        
+        # Redirect to the success URL
+        return redirect('blogList', pk=pk)
+
+    # If the request method is GET, render the form template
+    trip = Trip.objects.get(pk=pk)
+    context = {
+        'title': 'Add Image to Trip ' + trip.title,
+        'year': datetime.now().year,
+        'image_upload': True
+    }
+    return render(request, 'app/generic_form.html', context)
+    
+   

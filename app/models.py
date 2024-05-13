@@ -58,4 +58,12 @@ class TripPhoto(models.Model):
     modified = models.DateTimeField(auto_now=True)
 
     def __str__(self):
-        return self.photo.url
+        return self.trip.title + self.trip.imageLink
+    
+    
+class UserSubscription(models.Model):
+    user = models.ForeignKey('auth.User', on_delete=models.CASCADE)
+    subscribed = models.BooleanField(default=True)
+
+    def __str__(self):
+        return self.user.username

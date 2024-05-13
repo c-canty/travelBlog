@@ -1,6 +1,6 @@
 from django.contrib import admin
 
-from app.models import BlogEntry, Trip, TripComment, NewsFeedEntry, TripPhoto
+from app.models import BlogEntry, Trip, TripComment, NewsFeedEntry, TripPhoto, UserSubscription
 
 admin.site.register(BlogEntry)
 
@@ -16,6 +16,7 @@ admin.site.register(Trip)
 admin.site.register(TripComment)
 admin.site.register(NewsFeedEntry)
 admin.site.register(TripPhoto)
+admin.site.register(UserSubscription)
 
 class TripAdmin(admin.ModelAdmin):
     list_display = ['title', 'start_date', 'end_date', 'active']
@@ -47,4 +48,12 @@ class TripPhotoAdmin(admin.ModelAdmin):
     date_hierarchy = 'created'
     save_on_top = True
     prepopulated_fields = {'slug': ('title',)}
+
+
+class UserSubscriptionAdmin(admin.ModelAdmin):
+    list_display = ['user', 'subscribed']
+    list_filter = ['subscribed']
+    search_fields = ['user']
+    save_on_top = True
+
 # Register your models here.

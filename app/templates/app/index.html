@@ -112,12 +112,40 @@
             {% endfor %}
         </div>
         {% endif %}
-        {% if forloop.counter == 2 %}
-        <div  class="row mb-5" style="background-color: #baccde; padding-bottom:20px; padding-top:20px">
-                <div class="col-md-3 px-0" style="padding-left: 9px; padding-right: 9px; color:black">
-                    <h2>subscribe</h2>
-                </div>
+        {% if forloop.counter == 2 and not user.is_authenticated %}
+        <div class="row mb-5" style="background-color: #baccde; padding-bottom:20px; padding-top:20px">
+            <div class="col-md-1"></div>
+            <div class="col-md-5 px-0" style="padding-left: 9px; padding-right: 9px; color:black">
+                <h2 style="font-size: 40px;">Stay up to date on what is going on in our adventures!</h2>
+            </div>
+            <div class="col-md-1"></div>
+            <div class="col-md-4 px-0">
+                <h1><a href="{% url 'signup' %}" class="btn btn-black" style="font-size: 30px;">Sign up here!</a></h1>
+            </div>
+            <div class="col-md-1"></div>
         </div>
+        
+        <style>
+            .btn-black {
+                display: inline-block;
+                padding: 50px 100px;
+                background-color: black;
+                color: white;
+                text-decoration: none;
+                transition: background-color 0.3s ease;
+            }
+        
+            .btn-black:hover {
+                background-color: #555;
+            }
+        
+            /* Adjust the size of the text for "Sign up here" */
+            .btn-black h1 {
+                font-size: 28px;
+            }
+        </style>
+        
+        
         {% endif %}
     {% endfor %}
 </div>

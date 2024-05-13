@@ -32,4 +32,7 @@ urlpatterns = [
     path('tripCreate/', views.TripCreateView.as_view(), name='tripCreate'),
     path('tripUpdate/<int:pk>/', views.TripUpdateView.as_view(), name='tripUpdate'),
     path('newsCreate/', views.NewsCreateView.as_view(), name='newsCreate'),
+    path('signup/', views.UserSignUpCreateView.as_view(), name='signup'),
+    path('tripImageCreate/<int:pk>/', views.trip_image_create_view, name='tripImageCreate'),
+    
 ]

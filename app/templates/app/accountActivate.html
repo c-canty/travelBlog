@@ -1,0 +1,7 @@
+
+    <h1>Account Activation</h1>
+    {% if success %}
+        <p>Your account has been activated successfully. You can now <a href="{% url 'login' %}">log in</a>.</p>
+    {% else %}
+        <p>Invalid activation link. Please try again or contact support for assistance.</p>
+    {% endif %}

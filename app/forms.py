@@ -6,6 +6,7 @@ from django.contrib.auth.forms import AuthenticationForm
 from django.utils.translation import gettext_lazy as _
 from pycountry import countries
 from .models import BlogEntry, Trip, TripComment, NewsFeedEntry, TripPhoto
+from django.contrib.auth.models import User
 
 
 class BootstrapAuthenticationForm(AuthenticationForm):
@@ -201,4 +202,43 @@ class TripPhotoCreateForm(forms.ModelForm):
             }),
         }
         
+class UserCreationForm(forms.ModelForm):
+    password_repeat = forms.CharField(widget=forms.PasswordInput(attrs={
+        'class': 'form-control',
+        'placeholder': 'Repeat Password',
+    }))
+
+    terms_and_conditions = forms.BooleanField(label='I agree to the terms and conditions')
+    subscribe_updates = forms.BooleanField(label='Subscribe for updates', required=False)
+
+    class Meta:
+        model = User
+        fields = ['username','email', 'password']
+        widgets = {
+            'username': forms.TextInput(attrs={
+                'class': 'form-control',
+                'placeholder': 'Username',
+            }),
+            'email': forms.EmailInput(attrs={
+                'class': 'form-control',
+                'placeholder': 'Email',
+            }),
+            'password': forms.PasswordInput(attrs={
+                'class': 'form-control',
+                'placeholder': 'Password',
+            }),
+        }
+
+    def clean(self):
+        cleaned_data = super().clean()
+        password = cleaned_data.get("password")
+        password_repeat = cleaned_data.get("password_repeat")
+
+        if password != password_repeat:
+            raise forms.ValidationError("Passwords do not match.")
+
+        return cleaned_data
+    
+
+
 

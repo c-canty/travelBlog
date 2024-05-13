@@ -1,0 +1,24 @@
+{% extends "app/layout.html" %}
+
+{% block content %}
+{% load static %}
+<div class="container">
+    <div class="row">
+        <div class="col-md-4">
+            <h1>{{ title }}</h1>
+
+    <form method="post" enctype="multipart/form-data"> <!-- Add enctype for file upload -->
+        {% csrf_token %}
+        
+        {{ form.as_p }}     
+        
+        <button type="submit">Submit</button>
+    </form>
+        </div>
+        <div class="col-md-8">
+            <img src="{% static 'app/Images/airport.jpg' %}" alt="Signup image" style="width: 100%; height: auto;">
+        </div>
+</div>
+
+
+{% endblock %}
