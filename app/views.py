@@ -21,7 +21,6 @@ import random
 from django.contrib.auth.models import User
 
 
-
 class TripListView(ListView):
     model = Trip
     template_name = 'app/index.html'
@@ -151,8 +150,6 @@ class BlogCreateView(CreateView, LoginRequiredMixin):
         # Create a newsfeed entry as before
         new_news = NewsFeedEntry.objects.create(title=form.cleaned_data['title'], body="NEW BLOG ENTRY!", active=True)
         new_news.save()
-
-
         # Call the parent class's form_valid method
         return super().form_valid(form)
 
@@ -246,26 +243,20 @@ class UserSignUpCreateView(CreateView):
         context['year'] = datetime.now().year
         return context
     
-# Update TripImageCreateView to use the correct form class and handle image upload properly
 @login_required
 def trip_image_create_view(request, pk):
     if request.method == 'POST':
-        # Retrieve the trip based on the URL parameter
         trip = Trip.objects.get(pk=pk)
-        
-        # Retrieve the image file from the request
+
         image_file = request.FILES.get('image')
-        
-        # If an image file is provided, save it and create a TripPhoto object
+
         if image_file:
             fs = FileSystemStorage(location='app/static/app/Images/')
             filename = fs.save(image_file.name, image_file)
             TripPhoto.objects.create(trip=trip, imageLink=filename)
-        
-        # Redirect to the success URL
+
         return redirect('blogList', pk=pk)
 
-    # If the request method is GET, render the form template
     trip = Trip.objects.get(pk=pk)
     context = {
         'title': 'Add Image to Trip ' + trip.title,
