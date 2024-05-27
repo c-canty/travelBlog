@@ -22,10 +22,11 @@ class BootstrapAuthenticationForm(AuthenticationForm):
 
 
 COUNTRY_CHOICES = [(country.name, country.name) for country in countries] # From pycountry
+
 class BlogEntryCreateForm(forms.ModelForm):
     class Meta:
         model = BlogEntry
-        fields = ['title', 'body', 'city', 'country', 'active']  # Include required fields
+        fields = ['title', 'body', 'city', 'country', 'active']  
         widgets = {
             'title': forms.TextInput({
                 'class': 'form-control',
@@ -39,7 +40,7 @@ class BlogEntryCreateForm(forms.ModelForm):
                 'class': 'form-control',
                 'placeholder': 'City',
             }),
-            'country': forms.Select(  # Use a Select widget with country choices
+            'country': forms.Select(  
                 choices=COUNTRY_CHOICES,
                 attrs={
                     'class': 'form-control',
@@ -69,7 +70,7 @@ class BlogEntryUpdateForm(forms.ModelForm):
                 'placeholder': 'City',
             }),
             'country': forms.Select(
-                choices=COUNTRY_CHOICES,  # Use the same choices
+                choices=COUNTRY_CHOICES,  
                 attrs={
                     'class': 'form-control',
                 },

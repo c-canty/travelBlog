@@ -35,6 +35,7 @@
     <!-- Blog Entries Related to This Trip -->
     {% if user.is_staff %}
             <a href="{% url 'tripImageCreate' pk=trip.id %}" class="btn btn-secondary">Add image</a>
+            <a href="{% url 'blogCreate' pk=trip.id %}" class="btn btn-secondary">Add blog entry</a>
         {% endif %}
     <div class="blog-list">
 
@@ -90,7 +91,7 @@
                             <p class="card-text"><small class="text-muted">Location: {{ blog.city }}, {{ blog.country }}</small></p>
                             <p class="card-text"><small class="text-muted">Posted on {{ blog.created|date:"d/m/Y H:i" }}</small></p>
                             {% if user.is_staff %}
-                                <a href="{% url "blogUpdate" pk=blog.id %}" class="btn btn-primary">Edit Entry 1</a>
+                                <a href="{% url "blogUpdate" pk=blog.id %}" class="btn btn-primary">Edit Entry</a>
                             {% endif %}
                         </div>
                     </div>

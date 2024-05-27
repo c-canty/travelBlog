@@ -48,7 +48,7 @@ class TripListView(ListView):
 
         # Add other context variables
         context['title'] = 'CC Travels!'
-        context['news'] = NewsFeedEntry.objects.filter(active=True).order_by('id')[:5]
+        context['news'] = NewsFeedEntry.objects.filter(active=True).order_by('-id')[:5]
         context['year'] = datetime.now().year
         context['random_files'] = random_files  # Adding random file names to the context
 
@@ -95,7 +95,7 @@ class TripCreateView(LoginRequiredMixin, CreateView):
         context = super().get_context_data(**kwargs)
         context['title'] = 'Create Trip'
         context['year'] = datetime.now().year
-        context['initialize_datepicker'] = True  # Unique context variable
+        context['initialize_datepicker'] = True  
         context['image_upload'] = True
         return context
 
@@ -128,15 +128,11 @@ class BlogCreateView(CreateView, LoginRequiredMixin):
     
     
     def get_success_url(self):
-    # Assuming 'trip' is the foreign key relationship to the Trip model in the Blog model
         trip_id = self.object.trip.id
-    # Redirect back to the detail page of the trip with the given trip_id
         return reverse('blogList', kwargs={'pk': trip_id})
 
     def form_valid(self, form):
-        # Retrieve the trip based on the URL parameter
         trip = Trip.objects.get(pk=self.kwargs['pk'])
-        # Associate the BlogEntry with the specific trip
         image_file = self.request.FILES.get('image')
         form.instance.trip = trip
         if image_file:
@@ -146,9 +142,10 @@ class BlogCreateView(CreateView, LoginRequiredMixin):
             trip_image = TripPhoto.objects.create(trip=trip, imageLink=filename)
             trip_image.save()
 
-        
-        # Create a newsfeed entry as before
-        new_news = NewsFeedEntry.objects.create(title=form.cleaned_data['title'], body="NEW BLOG ENTRY!", active=True)
+        new_news = NewsFeedEntry.objects.create(
+            title=form.cleaned_data['title'], 
+            body="NEW BLOG ENTRY!", active=True
+            )
         new_news.save()
         # Call the parent class's form_valid method
         return super().form_valid(form)
@@ -157,7 +154,7 @@ class BlogCreateView(CreateView, LoginRequiredMixin):
         context = super().get_context_data(**kwargs)
         context['title'] = 'Create Blog Entry'
         context['year'] = datetime.now().year
-        context['trip'] = Trip.objects.get(pk=self.kwargs['pk'])  # Pass the trip to the context
+        context['trip'] = Trip.objects.get(pk=self.kwargs['pk'])  
         context['image_upload'] = True
         return context
 
@@ -166,9 +163,7 @@ class BlogUpdateView(UpdateView, LoginRequiredMixin):
     form_class = BlogEntryUpdateForm
     template_name = 'app/generic_form.html'
     def get_success_url(self):
-    # Assuming 'trip' is the foreign key relationship to the Trip model in the Blog model
         trip_id = self.object.trip.id
-    # Redirect back to the detail page of the trip with the given trip_id
         return reverse('blogList', kwargs={'pk': trip_id})
 
 
