@@ -1,6 +1,6 @@
 from django.contrib import admin
 
-from app.models import BlogEntry, Trip, TripComment, NewsFeedEntry, TripPhoto, UserSubscription
+from app.models import BlogEntry, Trip, TripComment, NewsFeedEntry, TripPhoto, UserSubscription, Sponsor
 
 admin.site.register(BlogEntry)
 
@@ -17,6 +17,7 @@ admin.site.register(TripComment)
 admin.site.register(NewsFeedEntry)
 admin.site.register(TripPhoto)
 admin.site.register(UserSubscription)
+admin.site.register(Sponsor)
 
 class TripAdmin(admin.ModelAdmin):
     list_display = ['title', 'start_date', 'end_date', 'active']
@@ -54,6 +55,11 @@ class UserSubscriptionAdmin(admin.ModelAdmin):
     list_display = ['user', 'subscribed']
     list_filter = ['subscribed']
     search_fields = ['user']
+    save_on_top = True
+
+class SponsorAdmin(admin.ModelAdmin):
+    list_display = ['name']
+    search_fields = ['name']
     save_on_top = True
 
 # Register your models here.

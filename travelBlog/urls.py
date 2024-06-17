@@ -34,5 +34,6 @@ urlpatterns = [
     path('newsCreate/', views.NewsCreateView.as_view(), name='newsCreate'),
     path('signup/', views.UserSignUpCreateView.as_view(), name='signup'),
     path('tripImageCreate/<int:pk>/', views.trip_image_create_view, name='tripImageCreate'),
+    # path('sponsors/', views.SponsorListView.as_view(), name='sponsors'),
     
 ]

@@ -6,7 +6,7 @@ from datetime import datetime
 from django.utils.dateparse import parse_date
 from django.shortcuts import render, redirect, get_object_or_404
 from django.http import HttpRequest, HttpResponseRedirect, HttpResponse
-from app.models import BlogEntry, Trip, TripComment, NewsFeedEntry, TripPhoto, UserSubscription
+from app.models import BlogEntry, Trip, TripComment, NewsFeedEntry, TripPhoto, UserSubscription, Sponsor
 from app.forms import BlogEntryCreateForm, BlogEntryUpdateForm, ToggleBlogForm, TripCreateForm, NewsFeedEntryCreateForm, UserCreationForm
 from django.contrib.auth.decorators import login_required
 import pycountry
@@ -38,7 +38,6 @@ class TripListView(ListView):
             all_files = os.listdir(folder_path)
         except Exception as e:
             all_files = []
-            print(f"Error listing files: {e}")
 
         # Ensure at least 20 files are available before random sampling
         if len(all_files) >= 20:
@@ -125,7 +124,6 @@ class BlogCreateView(CreateView, LoginRequiredMixin):
     model = BlogEntry
     form_class = BlogEntryCreateForm
     template_name = 'app/generic_form.html'
-    
     
     def get_success_url(self):
         trip_id = self.object.trip.id
@@ -260,4 +258,4 @@ def trip_image_create_view(request, pk):
     }
     return render(request, 'app/generic_form.html', context)
     
-   
+# Sponsor List View - LIVE CODING!!!! 

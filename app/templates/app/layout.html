@@ -68,13 +68,15 @@
                 
             </div>
             <div class="navbar-collapse collapse">
-                {% if user.is_staff %}
+                
                 <ul class="nav navbar-nav">
+                    {% comment %} <li> <a href={% url "sponsors" %}>Sponsors</a></li> {% endcomment %}
+                    {% if user.is_staff %}
                     <li> <a href={% url "tripCreate" %}>New Trip</a></li>
                     <li> <a href={% url "newsCreate" %}>New News</a></li>
-
+                    {% endif %}
                 </ul>
-                {% endif %}
+              
                 {% include 'app/loginpartial.html' %}
             </div>
         </div>
