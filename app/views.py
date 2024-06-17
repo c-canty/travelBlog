@@ -30,26 +30,23 @@ class TripListView(ListView):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
 
-        # Define the folder where your images are stored (relative to the Django base directory)
         folder_path = os.path.join(settings.BASE_DIR, 'app', 'static', 'app', 'Images')
 
-        # List all file names in the folder
         try:
             all_files = os.listdir(folder_path)
         except Exception as e:
             all_files = []
 
-        # Ensure at least 20 files are available before random sampling
         if len(all_files) >= 20:
-            random_files = random.sample(all_files, 20)  # Sample 20 random unique file names
+            random_files = random.sample(all_files, 20) 
         else:
-            random_files = all_files  # Fallback to all available files if fewer than 20
+            random_files = all_files  
 
         # Add other context variables
         context['title'] = 'CC Travels!'
         context['news'] = NewsFeedEntry.objects.filter(active=True).order_by('-id')[:5]
         context['year'] = datetime.now().year
-        context['random_files'] = random_files  # Adding random file names to the context
+        context['random_files'] = random_files  
 
         return context
 
@@ -62,7 +59,6 @@ class TripCommentCreateView(CreateView, LoginRequiredMixin):
         trip = Trip.objects.get(pk=self.kwargs['pk'])
         form.instance.trip = trip
         form.instance.author = self.request.user
-        # Redirect back to the same trip detail page
         self.success_url = reverse('blogList', kwargs={'pk': trip.pk})
         return super().form_valid(form)
 
